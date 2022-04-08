@@ -1,0 +1,3 @@
+[submodule "PIETOOLS_2021b/SOSTOOLS"]
+	path = PIETOOLS_2021b/SOSTOOLS
+	url = https://github.com/oxfordcontrol/SOSTOOLS.git
