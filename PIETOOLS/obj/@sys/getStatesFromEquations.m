@@ -1,6 +1,6 @@
 function out = getStatesFromEquations(obj)
 equations = obj.equations;
-eqnNum = length(equations);
+eqnNum = length(equations.lhs.operator);
 if eqnNum==0
     out = [];
 else

@@ -2,7 +2,7 @@ classdef (InferiorClasses={?state,?equation}) sys
     properties
         type = 'pde';
         equations = equation();
-        params = pde_struct();
+        params = [];
         ControlledInputs = [];
         ObservedOutputs = [];
     end
@@ -26,7 +26,7 @@ classdef (InferiorClasses={?state,?equation}) sys
             prop = getStatesFromEquations(obj);
         end
         function prop = get.params(obj)
-            if isempty(obj.params.dom)
+            if isempty(obj.params)
                 obj = getParams(obj);
                 prop = obj.params;
             else
@@ -35,30 +35,17 @@ classdef (InferiorClasses={?state,?equation}) sys
         end
         function out = get.ObservedOutputs(obj)
             if isempty(obj.ObservedOutputs)
-                statelist = getStatesFromEquations(obj);
-                if ~isempty(statelist)
-                    out = zeros(length(statelist.veclength),1);
-                else
-                    out = [];
-                end
+                out = zeros(length(obj.states),1);
             else
                 out = obj.ObservedOutputs;
             end
         end
         function out = get.ControlledInputs(obj)
             if isempty(obj.ControlledInputs)
-                statelist = getStatesFromEquations(obj);
-                out = zeros(length(statelist.veclength),1);
+                out = zeros(length(obj.states),1);
             else
                out = obj.ControlledInputs;
             end
-        end
-        % set methods
-        function obj = set.ObservedOutputs(obj,val)
-            obj.ObservedOutputs = val;
-        end
-        function obj = set.ControlledInputs(obj,val)
-            obj.ControlledInputs = val;
         end
     end
 end
