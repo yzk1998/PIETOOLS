@@ -1,7 +1,7 @@
 classdef (InferiorClasses={?state})equation
     properties (Access = {?equation, ?sys})
-        lhs = struct('operator',opvarND(),'statevec',state());
-        rhs = struct('operator',opvarND(),'statevec',state());
+        lhs = struct('operator',opvarND(),'states',state());
+        rhs = struct('operator',opvarND(),'states',state());
     end
     methods
         function obj = equation(varargin)

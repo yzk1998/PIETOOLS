@@ -7,7 +7,7 @@ else
     out = [];
     for i=1:eqnNum
         tempterms = equations(i);
-        out = combine(out,tempterms.statevec);
+        out = combine(out,tempterms.states);
     end
 end
 end
