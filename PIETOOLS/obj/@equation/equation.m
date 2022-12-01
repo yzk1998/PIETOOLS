@@ -4,14 +4,14 @@ classdef (InferiorClasses={?state})equation
         rhs = struct('operator',opvarND(),'statevec',state());
     end
     methods
-        function obj = terms(varargin)
+        function obj = equation(varargin)
             if nargin>2
                 error('Terms object constructor takes only two inputs');
             end
-            if nargin>1
+            if nargin==2
                 obj.rhs = varargin{2};
             end
-            if nargin>0
+            if nargin==1
                 obj.lhs = varargin{1};
             end
         end

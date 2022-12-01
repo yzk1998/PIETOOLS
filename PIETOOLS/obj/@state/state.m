@@ -23,6 +23,9 @@ classdef (InferiorClasses={?polynomial,?dpvar})state
                     assignin('caller', varargin{i}, obj);
                 end
             else
+                if nargin>4
+                    error('Too many inputs to state function. Try "help state"');
+                end
                 if nargin==4 % internal use only, dont use this for constructing state objects
                     obj.statename = varargin{4};
                 else
@@ -55,9 +58,6 @@ classdef (InferiorClasses={?polynomial,?dpvar})state
                         msg = ['Unknown state type ',type,'. Allowed types: "finite" or "infinite"'];
                         error(msg);
                     end
-                end
-                if nargin>4
-                    error('Too many inputs to state function. Try "help state"');
                 end
             end
         end
