@@ -1,5 +1,5 @@
 classdef (InferiorClasses={?polynomial,?dpvar})state
-    properties
+    properties (Access = {?equation, ?sys, ?state})
         type = 'finite';
         veclength = 1;
         var = pvar('t');
@@ -61,28 +61,5 @@ classdef (InferiorClasses={?polynomial,?dpvar})state
                 end
             end
         end
-        
-        function obj = set.dom(obj,dom)
-            obj.dom = dom;
-        end
-        function obj = set.maxdiff(obj,maxdiff)
-            obj.maxdiff = maxdiff;
-        end
-
-        % other class methods
-        obj = subs(obj,old,new); 
-        obj = diff(obj,var,order);
-        obj = int(obj,var,limits);
-        obj = plus(objA,objB);
-        obj = minus(objA,objB);
-        obj = mtimes(obj,K);
-        obj = uplus(obj);
-        obj = uminus(obj);
-        obj = horzcat(varargin);
-        obj = vertcat(varargin);
-        [logval,idx] = ismember(objA,objB)
-        logval = eq(objA,objB);
-        logval = isequal(objA,objB);
-        logval = ne(objA,objB);
     end
 end
