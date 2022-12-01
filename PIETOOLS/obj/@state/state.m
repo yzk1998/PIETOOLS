@@ -1,22 +1,19 @@
 classdef (InferiorClasses={?polynomial,?dpvar})state
     properties
-        type {mustBeMember(type,{'ode','pde','in','out'})} = 'ode';
-        veclength {mustBeInteger,mustBePositive}=1;
-        var {mustBeVector,mustBeA(var,["polynomial","double"])} = [pvar('t')];
-        diff_order {mustBeInteger,mustBeVector,mustBeNonnegative}= [0];
-    end
-    properties (Hidden)
-        maxdiff = "undefined";
-        dom = [0,1];
+        type = 'finite';
+        veclength = 1;
+        var = pvar('t');
+        diff_order = 0;
+        maxdiff = "inf";
+        dom = [];
     end
     properties (Hidden, SetAccess=protected)
         statename;
     end
-    methods (Access = {?terms, ?sys, ?state})
-        objterms = state2terms(obj,operator,var,val);
-        [out, varargout] = combine(varargin)
+    methods (Access = {?equation, ?sys, ?state})
+        objterms = state2equation(obj,operator,var,val);
+        [out, varargout] = combine(varargin);
     end
-    
     methods
         function obj = state(varargin) %constructor
             if nargout==0
@@ -26,38 +23,41 @@ classdef (InferiorClasses={?polynomial,?dpvar})state
                     assignin('caller', varargin{i}, obj);
                 end
             else
-                if nargin==1
-                    obj.type = varargin{1};
-                    if strcmp(varargin{1},'pde')
-                        obj.var = [pvar('t'),pvar('s')];
-                        obj.diff_order = [0,0];
-                    end
+                if nargin==4 % internal use only, dont use this for constructing state objects
+                    obj.statename = varargin{4};
+                else
                     obj.statename = stateNameGenerator();
-                elseif nargin==2
-                    obj.type = varargin{1};
-                    obj.veclength = varargin{2};
-                    if strcmp(obj.type,'pde')
-                        obj.var = [pvar('t'),pvar('s')];
-                        obj.diff_order = [0,0];
+                end
+                if nargin==3
+                    if strcmp(varargin{1},'finite')&&length(varargin{3})>1
+                        error('Finite type state objects must be variables in single polynomial');
                     end
-                    obj.statename = stateNameGenerator();
-                elseif nargin==3
                     if size(varargin{3},1)~=1
                         error('var must be a row vector');
                     end
-                    obj.type = varargin{1};
-                    obj.veclength = varargin{2};
                     obj.var = varargin{3};
-                    obj.statename = stateNameGenerator();
-                    obj.diff_order = zeros(1,length(varargin{3}));
-                elseif nargin==4 % internal use only, dont use this for constructing state vectors
-                    obj.type = varargin{1};
+                end
+                if nargin==2
+                    if (numel(varargin{2})~=1) || (varargin{2}<=0)|| ~isinteger(varargin{2})
+                        error('Object length must be a positive integer');
+                    end
                     obj.veclength = varargin{2};
-                    obj.var = varargin{3};
-                    obj.statename = varargin{4};
-                    obj.diff_order = zeros(1,length(varargin{3}));
-                elseif nargin>3
-                    error('State class definition only takes 3 inputs');
+                end
+                if nargin==1
+                    obj.type = varargin{1};
+                    if strcmp(varargin{1},'finite')
+                        % default values, do nothing
+                    elseif strcmp(varargin{1},'infinite')
+                        obj.var = [pvar('t'),pvar('s')];
+                        obj.diff_order = [0,0];
+                        obj.dom = [0,1];
+                    else
+                        msg = ['Unknown state type ',type,'. Allowed types: "finite" or "infinite"'];
+                        error(msg);
+                    end
+                end
+                if nargin>4
+                    error('Too many inputs to state function. Try "help state"');
                 end
             end
         end
@@ -70,18 +70,19 @@ classdef (InferiorClasses={?polynomial,?dpvar})state
         end
 
         % other class methods
-        obj = subs(obj,var,var_val);
+        obj = subs(obj,old,new); 
         obj = diff(obj,var,order);
-        logval = eq(objA,objB);
-        logval = isequal(objA,objB);
-        obj = horzcat(varargin);
         obj = int(obj,var,limits);
-        [logval,idx] = ismember(objA,objB)
+        obj = plus(objA,objB);
         obj = minus(objA,objB);
         obj = mtimes(obj,K);
-        logval = ne(objA,objB);
-        obj = plus(objA,objB);
         obj = uplus(obj);
         obj = uminus(obj);
+        obj = horzcat(varargin);
+        obj = vertcat(varargin);
+        [logval,idx] = ismember(objA,objB)
+        logval = eq(objA,objB);
+        logval = isequal(objA,objB);
+        logval = ne(objA,objB);
     end
 end
