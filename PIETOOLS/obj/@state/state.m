@@ -26,13 +26,27 @@ classdef (InferiorClasses={?polynomial,?dpvar})state
                 if nargin>4
                     error('Too many inputs to state function. Try "help state"');
                 end
-                if nargin==4 % internal use only, dont use this for constructing state objects
-                    obj.statename = varargin{4};
-                else
-                    obj.statename = stateNameGenerator();
+                if nargin>=1
+                    if strcmp(varargin{1},'ode')||strcmp(varargin{1},'dde')||strcmp(varargin{1},'nds')||strcmp(varargin{1},'ddf')||strcmp(varargin{1},'finite')
+                        obj.type = 'finite';
+                    elseif strcmp(varargin{1},'pde')||strcmp(varargin{1},'pie')||strcmp(varargin{1},'infinite')
+                        obj.type = 'infinite';
+                        obj.var = [pvar('t'),pvar('s')];
+                        obj.diff_order = [0,0];
+                        obj.dom = [0,1];
+                    else
+                        msg = ['Unknown state type ',type,'. Allowed types: "ode,dde,nds,ddf,pde,pie"'];
+                        error(msg);
+                    end
                 end
-                if nargin==3
-                    if strcmp(varargin{1},'finite')&&length(varargin{3})>1
+                if nargin>=2
+                    if (numel(varargin{2})~=1) || (varargin{2}<=0)|| ~isinteger(varargin{2})
+                        error('Object length must be a positive integer');
+                    end
+                    obj.veclength = varargin{2};
+                end
+                if nargin>=3
+                    if strcmp(obj.type,'finite')&&length(varargin{3})>1
                         error('Finite type state objects must be variables in single polynomial');
                     end
                     if size(varargin{3},1)~=1
@@ -40,24 +54,10 @@ classdef (InferiorClasses={?polynomial,?dpvar})state
                     end
                     obj.var = varargin{3};
                 end
-                if nargin==2
-                    if (numel(varargin{2})~=1) || (varargin{2}<=0)|| ~isinteger(varargin{2})
-                        error('Object length must be a positive integer');
-                    end
-                    obj.veclength = varargin{2};
-                end
-                if nargin==1
-                    obj.type = varargin{1};
-                    if strcmp(varargin{1},'finite')
-                        % default values, do nothing
-                    elseif strcmp(varargin{1},'infinite')
-                        obj.var = [pvar('t'),pvar('s')];
-                        obj.diff_order = [0,0];
-                        obj.dom = [0,1];
-                    else
-                        msg = ['Unknown state type ',type,'. Allowed types: "finite" or "infinite"'];
-                        error(msg);
-                    end
+                if nargin>=4 % internal use only, dont use this for constructing state objects
+                    obj.statename = varargin{4};
+                else
+                    obj.statename = stateNameGenerator();
                 end
             end
         end

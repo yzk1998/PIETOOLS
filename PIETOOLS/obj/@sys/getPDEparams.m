@@ -1,42 +1,10 @@
-function out = getPDEparams(pdeObj)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% sys-class method that parses PDE equations into standard parametric form for
-% PDE
-% Input: 
-% obj - sys class object
-% Output:
-% out - sys class object with PDE parameters initialized
-%
-% For support, contact M. Peet, Arizona State University at mpeet@asu.edu
-% or D. Jagt at djagt@asu.edu
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Copyright (C)2022  M. Peet, S. Shivakumar, D. Jagt
-%
-% This program is free software; you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation; either version 2 of the License, or
-% (at your option) any later version.
-%
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with this program; if not, write to the Free Software
-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% If you modify this code, document all changes carefully and include date
-% authorship, and a brief description of modifications
-equations = pdeObj.equation;
-statelist = pdeObj.states;
+function obj_out = getPDEparams(obj_in)
+equations = obj_in.equation;
+statelist = obj_in.states;
 eqnNum = length(equations);
 
 % change the domain to global value specified
-dom = pdeObj.dom;
+dom = obj_in.dom;
 
 % temporary pvars
 pvar t;
@@ -52,19 +20,19 @@ if ~isempty(tmp)
     pdeNames = tmp.statename;
 end
 xNames = [odeNames; pdeNames];
-tmp = statelist(find((~pdeObj.ObservedOutputs).*strcmp(statelist.type,'out')));
+tmp = statelist(find((~obj_in.ObservedOutputs).*strcmp(statelist.type,'out')));
 if ~isempty(tmp) 
    zNames = tmp.statename;
 end
-tmp = statelist(find((pdeObj.ObservedOutputs).*strcmp(statelist.type,'out')));
+tmp = statelist(find((obj_in.ObservedOutputs).*strcmp(statelist.type,'out')));
 if ~isempty(tmp) 
     yNames = tmp.statename;
 end
-tmp = statelist(find(~(pdeObj.ControlledInputs).*strcmp(statelist.type,'in')));
+tmp = statelist(find(~(obj_in.ControlledInputs).*strcmp(statelist.type,'in')));
 if ~isempty(tmp) 
     wNames = tmp.statename;
 end
-tmp = statelist(find(pdeObj.ControlledInputs.*strcmp(statelist.type,'in')));
+tmp = statelist(find(obj_in.ControlledInputs.*strcmp(statelist.type,'in')));
 if ~isempty(tmp) 
     uNames = tmp.statename;
 end
@@ -74,25 +42,25 @@ clear tmp;
 veclen_sum = [0;cumsum(equations.statevec.veclength)]+1;
 
 % start parsing the system equations
-out = pde_struct();
+obj_out = pde_struct();
 
 % set known global properties
-out.dom = dom;
-out.vars = [pvar('s'),pvar('theta')];
+obj_out.dom = dom;
+obj_out.vars = [pvar('s'),pvar('theta')];
 
 % set state properties
-out.x = cell(length(xNames),1);
-out.w = cell(length(wNames),1);
-out.u = cell(length(uNames),1);
-out.z = cell(length(zNames),1);
-out.y = cell(length(yNames),1);
-out.BC = cell(0,1);
+obj_out.x = cell(length(xNames),1);
+obj_out.w = cell(length(wNames),1);
+obj_out.u = cell(length(uNames),1);
+obj_out.z = cell(length(zNames),1);
+obj_out.y = cell(length(yNames),1);
+obj_out.BC = cell(0,1);
 
 
 % specify ode states in out.x by saying out.x.vars has no spatial variable
 [~,tmpidx] = ismember(odeNames,xNames);
 if ~isempty(tmpidx)
-out.x{tmpidx}.vars = [];
+obj_out.x{tmpidx}.vars = [];
 end
 
 % find time derivatives and output state locations
@@ -110,10 +78,10 @@ for i=1:eqnNum % start one "scalar" equation at a time, vector valued states are
         outLoc = find(outLoc<veclen_sum,1)-1;
         outNametemp = equations.statevec(outLoc).statename;
         if ismember(outNametemp, zNames)% regulated output
-            tmp = out.z;
+            tmp = obj_out.z;
             Loc = find(outNametemp == zNames); 
         else % observed output
-            tmp = out.y;
+            tmp = obj_out.y;
             Loc = find(outNametemp == yNames); 
         end
         % now separate the terms
@@ -148,16 +116,16 @@ for i=1:eqnNum % start one "scalar" equation at a time, vector valued states are
             end
         end
         if ismember(outNametemp, zNames)% regulated output
-            out.z = tmp;
+            obj_out.z = tmp;
         else % observed output
-            out.y = tmp;
+            obj_out.y = tmp;
         end
     elseif hasDynamics % equation has dynamics
         % find which x
         outLoc = find(isdot_A'.*any(strcmp(equations.statevec.type,{'ode'})|strcmp(equations.statevec.type,{'pde'}))'&~isequal(polynomial(row.operator.R.R0),zeros(1,sum(equations.statevec.veclength))));
         outLoc = find(outLoc<veclen_sum,1)-1;
         outNametemp = equations.statevec(outLoc).statename;
-        tmp = out.x;
+        tmp = obj_out.x;
         Loc = find(outNametemp == xNames); 
         % now separate the terms
         for j=1:length(equations.statevec) % first extract all the R0 terms
@@ -230,9 +198,9 @@ for i=1:eqnNum % start one "scalar" equation at a time, vector valued states are
                 tmp{Loc}.term{j}.delay = double(equations.statevec(jtmp).var(1)-t);
             end
         end
-        out.x = tmp;
+        obj_out.x = tmp;
     else % boundary conditions
-        tmp = out.BC;
+        tmp = obj_out.BC;
         k = length(tmp);
         tmp{k+1} = [];
         for j=1:length(equations.statevec)
@@ -265,53 +233,53 @@ for i=1:eqnNum % start one "scalar" equation at a time, vector valued states are
                 tmp{k+1}.term{j}.delay = double(equations.statevec(j).var(1)-t);
             end
         end
-        out.BC = tmp;
+        obj_out.BC = tmp;
     end
 end
 
 % finally remove empty/zero terms
 % dotidx = find(isdot_A); outidx = find(isout_A); rmidx = [dotidx;outidx];
 for i=1:length(xNames)
-    for j=length(out.x{i}.term):-1:1
-        coeffvec = out.x{i}.term{j}.C(:);
+    for j=length(obj_out.x{i}.term):-1:1
+        coeffvec = obj_out.x{i}.term{j}.C(:);
         if isempty(coeffvec)
-            out.x{i}.term(j) = [];
+            obj_out.x{i}.term(j) = [];
         elseif all(isequal(polynomial(coeffvec),zeros(length(coeffvec),1)))
-            out.x{i}.term(j) = [];
+            obj_out.x{i}.term(j) = [];
         end
     end
 %     rmidx2 = [rmidx; (rmidx+length(out.x{i}.term)/3); (rmidx+2*length(out.x{i}.term)/3)];
 %     out.x{i}.term(rmidx2) = [];
 end
 for i=1:length(zNames)
-    for j=length(out.z{i}.term):-1:1
-        coeffvec = out.z{i}.term{j}.C(:);
+    for j=length(obj_out.z{i}.term):-1:1
+        coeffvec = obj_out.z{i}.term{j}.C(:);
         if isempty(coeffvec)
-            out.z{i}.term(j) = [];
+            obj_out.z{i}.term(j) = [];
         elseif all(isequal(polynomial(coeffvec),zeros(length(coeffvec),1)))
-            out.z{i}.term(j) = [];
+            obj_out.z{i}.term(j) = [];
         end
     end
 % out.z{i}.term(rmidx) = [];
 end
 for i=1:length(yNames)
-    for j=length(out.y{i}.term):-1:1
-        coeffvec = out.y{i}.term{j}.C(:);
+    for j=length(obj_out.y{i}.term):-1:1
+        coeffvec = obj_out.y{i}.term{j}.C(:);
         if isempty(coeffvec)
-            out.y{i}.term(j) = [];
+            obj_out.y{i}.term(j) = [];
         elseif all(isequal(polynomial(coeffvec),zeros(length(coeffvec),1)))
-            out.y{i}.term(j) = [];
+            obj_out.y{i}.term(j) = [];
         end
     end
 % out.y{i}.term(rmidx) = [];
 end
-for i=1:length(out.BC)
-    for j=length(out.BC{i}.term):-1:1
-        coeffvec = out.BC{i}.term{j}.C(:);
+for i=1:length(obj_out.BC)
+    for j=length(obj_out.BC{i}.term):-1:1
+        coeffvec = obj_out.BC{i}.term{j}.C(:);
         if isempty(coeffvec)
-            out.BC{i}.term(j) = [];
+            obj_out.BC{i}.term(j) = [];
         elseif all(isequal(polynomial(coeffvec),zeros(length(coeffvec),1)))
-            out.BC{i}.term(j) = [];
+            obj_out.BC{i}.term(j) = [];
         end
     end
 % out.BC{i}.term(rmidx) = [];
