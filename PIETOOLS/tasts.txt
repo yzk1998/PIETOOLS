@@ -1,0 +1,8 @@
+@sys:
+--- Write getPDEparams (ND case), getDDEparams, getDDFparams, getNDSparams
+--- summarize() method for sys?
+--- add methods to set up interconnected systems
+--- add methods to set up closed-loop systems
+
+@equation:
+
