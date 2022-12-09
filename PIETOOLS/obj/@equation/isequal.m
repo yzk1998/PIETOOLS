@@ -1,4 +1,10 @@
 function logval = isequal(objA,objB)
+if isa(objA,'equation')&&~objA.one_sided
+    error('Incorrect equation format. Cannot test equatily of A==B and C==D');
+end
+if isa(objB,'equation')&&~objB.one_sided
+    error('Incorrect equation format. Cannot test equatily of A==B and C==D');
+end
 logval = 1;
 if ~isa(objA,'equation')||~isa(objB,'equation')
     logval = 0;
