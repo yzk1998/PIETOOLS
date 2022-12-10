@@ -3,8 +3,11 @@ switch s(1).type
     case '.'
         out = builtin('subsref',obj,s);
     case '()'
-        indc = 1:obj.operator.dim(2,2);
-        out = terms(obj.operator(s(1).subs{1},indc),obj.statevec);
+        lhs.states = obj.lhs.states;
+        rhs.states = obj.rhs.states;
+        lhs.operator = obj.lhs.operator(s(1).subs{1},:);
+        rhs.operator = obj.rhs.operator(s(1).subs{1},:);
+        out = equation(lhs,rhs);
     otherwise
         error('Not a valid indexing expression');
 end

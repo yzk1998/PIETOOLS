@@ -40,7 +40,7 @@ classdef (InferiorClasses={?polynomial,?dpvar})state
                     end
                 end
                 if nargin>=2
-                    if (numel(varargin{2})~=1) || (varargin{2}<=0)|| ~isinteger(varargin{2})
+                    if (numel(varargin{2})~=1)||(varargin{2}<=0)||~isinteger(varargin{2})
                         error('Object length must be a positive integer');
                     end
                     obj.veclength = varargin{2};
