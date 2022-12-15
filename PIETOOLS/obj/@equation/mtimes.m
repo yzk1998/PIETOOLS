@@ -19,7 +19,7 @@ else
     T.N{0} = K;
 end
 end
-lhs = struct('operator',set(opvarND(),'outlen',length(T)),'states',state());
+lhs = struct('operator',set(opvarND(),'dim.out',T.dim.out),'states',state());
 rhs = struct('operator',T*objA.rhs.operator,'states',objA.rhs.states);
 out = equation(lhs,rhs);
 end

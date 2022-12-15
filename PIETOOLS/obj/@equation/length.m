@@ -1,4 +1,3 @@
 function out = length(obj)
-dim = obj.rhs.operator.dim;
-out = sum(dim(:,1));
+out = length(obj.rhs.operator);
 end

@@ -22,7 +22,7 @@ end
 tempoperator = [objA.rhs.operator objB.rhs.operator];
 tempstatevec = vertcat(objA.rhs.states, objB.rhs.states);
 
-lhs = struct('operator',set(opvarND(),'outlen',length(tempoperator)),'states',state());
+lhs = struct('operator',set(opvarND(),'dim.out',tempoperator.dim.out),'states',state());
 rhs = struct('operator',tempoperator,'states',tempstatevec);
 out = equation(lhs,rhs);
 end

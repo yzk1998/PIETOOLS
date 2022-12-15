@@ -13,13 +13,13 @@ if isa(objB,'state')
 end
 if ~isa(objA,'equation')&&(objA==0)
     rhs = objB.rhs;
-    lhs.operator = set(opvarND(),'outlen',length(rhs.operator)); 
+    lhs.operator = set(opvarND(),'dim.out',rhs.operator.dim.out); 
     lhs.states = state(); 
     obj = equation(rhs,lhs);
 elseif ~isa(objB,'equation')&&(objB==0)
     objA = -objA;
     rhs = objA.rhs;
-    lhs.operator = set(opvarND(),'outlen',length(rhs.operator)); 
+    lhs.operator = set(opvarND(),'dim.out',rhs.operator.dim.out); 
     lhs.states = state(); 
     obj = equation(rhs,lhs);
 elseif isa(objA,'equation')&&isa(objB,'equation')
