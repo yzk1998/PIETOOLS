@@ -13,6 +13,7 @@ classdef (InferiorClasses={?state,?equation}) sys
     methods (Static)
         [type,params] = identifyParamsType(params);
         obj = initialize(params);
+        obj = convert(varargin);
     end
     methods
         function obj = sys(varargin)

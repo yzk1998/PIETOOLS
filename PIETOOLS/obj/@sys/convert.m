@@ -1,11 +1,21 @@
-function [out] = convert(obj,convertTo)
+function [out] = convert(varargin)
+if nargin==1
+    params = varargin{1};
+    convertTo='pie';
+elseif nargin==2
+    params = varargin{1};
+    convertTo = varargin{2};
+end
+if ~isa(params,'sys')
+    obj = sys.initialize(params);
+else
+    obj = params;
+end
 if strcmp(obj.type,'pie') %nothing to do
     out = obj;
     return;
 end
-if nargin==1
-    convertTo='pie';
-end
+
 if strcmp(convertTo, 'pie')
     out = obj;
     out.type = 'pie';
