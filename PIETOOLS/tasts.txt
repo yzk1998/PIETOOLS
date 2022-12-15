@@ -1,8 +1,12 @@
 @sys:
+--- identifyParamsType() static method
 --- Write getPDEparams (ND case), getDDEparams, getDDFparams, getNDSparams
+--- add method to set up closed-loop systems
 --- summarize() method for sys?
---- add methods to set up interconnected systems
---- add methods to set up closed-loop systems
+--- add methods to set up interconnected systems?
+
+@pde_struct, pie_struct, tds_struct:
+--- write static methods: pde/pie/tds_struct.initialize() and .convert()
 
 @equation:
 --- Integration

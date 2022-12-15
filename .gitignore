@@ -1,2 +1,5 @@
 *.asv
 */desktop.ini
+*.DS_store
+*.prj
+*.mltbx

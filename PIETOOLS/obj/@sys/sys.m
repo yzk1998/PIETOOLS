@@ -10,13 +10,17 @@ classdef (InferiorClasses={?state,?equation}) sys
         states;
         dom;
     end
+    methods (Static)
+        [type,params] = identifyParamsType(params);
+        obj = initialize(params);
+    end
     methods
         function obj = sys(varargin)
             if nargin>1
                 msg = 'Too many inputs.';
                 error(msg);
             end
-            if nargin==1
+            if nargin==1 && (isa(varargin{1},'string')||isa(varargin{1},'char'))
                 obj.type =varargin{1};
                 if strcmp(obj.type,'dde')
                     obj.params = tds_struct('dde');
@@ -27,6 +31,9 @@ classdef (InferiorClasses={?state,?equation}) sys
                 elseif strcmp(obj.type,'pie')
                     obj.params = pie_struct();
                 end
+            elseif isa(varargin{1},'struct')||isa(varargin{1},'pde_struct')...
+                    ||isa(varargin{1},'tds_struct')||isa(varargin{1},'pie_struct')
+                obj = sys.initialize(varargin{1});
             end
             fprintf('Initialized sys() object of type "%s"\n',obj.type);
         end
