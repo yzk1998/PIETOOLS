@@ -13,5 +13,8 @@
 --- Simplify states vector (keep only unique elements)
 --- Rearrange equation (move time derivative and outputs to lhs)
 
+@state:
+--- Integration
+
 @opvarND:
 --- blkdiag
