@@ -19,10 +19,11 @@ elseif ~isa(objB,'equation')
     error('Only state/equation type objects can be added');
 end
 
-tempoperator = [objA.rhs.operator objB.rhs.operator];
-tempstatevec = vertcat(objA.rhs.states, objB.rhs.states);
 
-lhs = struct('operator',set(opvarND(),'dim.out',tempoperator.dim.out),'states',state());
-rhs = struct('operator',tempoperator,'states',tempstatevec);
+[tmpstatevec,PA,PB] = combine(objA.rhs.states, objB.rhs.states);
+tmpoperator = [objA.rhs.operator objB.rhs.operator]*[PA; PB];
+
+lhs = struct('operator',set(opvarND(),'dim.out',tmpoperator.dim.out),'states',[]);
+rhs = struct('operator',tmpoperator,'states',tmpstatevec);
 out = equation(lhs,rhs);
 end

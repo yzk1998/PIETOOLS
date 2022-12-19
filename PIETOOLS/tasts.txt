@@ -1,5 +1,6 @@
 @sys:
 --- identifyParamsType() static method
+--- getstatesfromequations()
 --- Write getPDEparams (ND case), getDDEparams, getDDFparams, getNDSparams
 --- add method to set up closed-loop systems
 --- summarize() method for sys?
@@ -9,7 +10,7 @@
 --- write static methods: pde/pie/tds_struct.initialize() and .convert()
 
 @equation:
---- Integration
+--- Integration, mtimes
 --- Simplify states vector (keep only unique elements)
 --- Rearrange equation (move time derivative and outputs to lhs)
 

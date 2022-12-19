@@ -19,11 +19,7 @@ end
 end
 function P = findPermutation(A,B) % returns P, such that B = P*A
 s.type = '.'; s.subs = 'veclength';
-P = zeros(sum(subsref(B,s)),sum(subsref(A,s)));
-blen = [0;cumsum(subsref(B,s))]+1; alen = [0;cumsum(subsref(A,s))]+1;
+P = zeros(subsref(B,s),subsref(A,s));
 [~,idx] = ismember(B,A);
-for i=1:length(blen)-1
-    tmp = subsref(A,s);
-    P(blen(i):blen(i+1)-1,alen(idx(i)):alen(idx(i)+1)-1) = eye(tmp(idx(i)));
-end
+P(sub2ind(size(P),1:subsref(B,s),idx)) = 1;
 end

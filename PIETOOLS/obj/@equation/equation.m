@@ -1,7 +1,7 @@
 classdef (InferiorClasses={?state})equation
     properties (Access = {?equation, ?sys})
-        lhs = struct('operator',opvarND(),'states',state());
-        rhs = struct('operator',opvarND(),'states',state());
+        lhs = struct('operator',opvarND(),'states',[]);
+        rhs = struct('operator',opvarND(),'states',[]);
     end
     properties (Hidden)
         one_sided=1;
