@@ -140,6 +140,7 @@ function solution=PIESIM_transform_to_solution(psize, PIE, Dop, uinput, grid, so
      
      % Reconstruct solution using inverse Chebyshev transform (ifcht
      % function)
+     if(~isnan(acheb_p))
      for n=1:ns
      acheb_p_local=acheb_p(nx+1+(n-1)*(N+1):nx+n*(N+1));
      solution.final.pde(:,n) = ifcht(acheb_p_local);
@@ -154,10 +155,19 @@ function solution=PIESIM_transform_to_solution(psize, PIE, Dop, uinput, grid, so
       end
      end
      solution.final.ode=solcoeff.final(1:nx);
+     else
+         solution.final.ode=[];
+         if (ns>0) 
+             solution.final.pde=[];
+         end
+     end
+
 
 %   Reconstruction of observed and regulated outputs
 
     if(psize.nz>0)
+        % Don't execute if solution blew up
+        if(~isnan(solcoeff.final)) 
     solution.final.regulated=C1op*solcoeff.final;
     if (psize.nw>0)
     solution.final.regulated=solution.final.regulated+D11op*wvec(:,1);
@@ -165,9 +175,14 @@ function solution=PIESIM_transform_to_solution(psize, PIE, Dop, uinput, grid, so
     if (psize.nu>0)
     solution.final.regulated=solution.final.regulated+D12op*uvec(:,1);
     end
-    end
+        else
+        solution.final.regulated=[];
+        end % if
+    end % psize
 
     if(psize.ny>0)
+        % Don't execute if solution blew up
+        if(~isnan(solcoeff.final)) 
     solution.final.observed=C2op*solcoeff.final;
     if (psize.nw>0)
     solution.final.observed=solution.final.observed+D21op*wvec(:,1);
@@ -175,7 +190,10 @@ function solution=PIESIM_transform_to_solution(psize, PIE, Dop, uinput, grid, so
     if (psize.nu>0)
     solution.final.observed=solution.final.observed+D22op*uvec(:,1);
     end
-    end
+    else
+        solution.final.observed=[];
+        end % if
+    end % psize
      
      
 %----------------------------------------   
@@ -187,6 +205,7 @@ if (opts.intScheme==1)
     
     % Define ODE solution and temporal stamps array
      solution.timedep.dtime=solcoeff.timedep.dtime;
+     if (~isnan(solcoeff.timedep.coeff))
      solution.timedep.ode=solcoeff.timedep.coeff(1:nx,:);
 
 
@@ -197,6 +216,12 @@ if (opts.intScheme==1)
     if(psize.ny>0)
     solution.timedep.observed=C2op*solcoeff.timedep.coeff;
     end
+    else
+    solution.timedep.ode=[];
+    solution.timedep.regulated=[];
+    solution.timedep.observed=[];
+    end
+          
      
      
  %---------------------------------------------    
@@ -237,10 +262,10 @@ if (opts.intScheme==1)
      end % if isa(bc,'polynomial')
 
      % Add disturbances to regulated and observed outputs
-     if(psize.nz>0)
+     if(psize.nz>0 & ~isempty(solution.timedep.regulated))
      solution.timedep.regulated(:,ntime)=solution.timedep.regulated(:,ntime)+D11op*wvec(:,1);
      end
-     if(psize.ny>0)
+     if(psize.ny>0 & ~isempty(solution.timedep.observed))
      solution.timedep.observed(:,ntime)=solution.timedep.observed(:,ntime)+D21op*wvec(:,1);
      end
 
@@ -270,15 +295,16 @@ if (opts.intScheme==1)
      end
      end
      % Add controled inputs to regulated and observed outputs
-     if(psize.nz>0)
+     if(psize.nz>0 & ~isempty(solution.timedep.regulated))
      solution.timedep.regulated(:,ntime)=solution.timedep.regulated(:,ntime)+D12op*uvec(:,1);
      end
-     if(psize.ny>0)
+     if(psize.ny>0& ~isempty(solution.timedep.observed))
      solution.timedep.observed(:,ntime)=solution.timedep.observed(:,ntime)+D22op*uvec(:,1);
      end
      end % if (psize.nu>0)
      
      % Reconstruct solution using inverse Chebyshev transform (ifcht function)
+     if (~isnan(acheb_p))
      for n=1:ns
      acheb_p_local=acheb_p(nx+1+(n-1)*(N+1):nx+n*(N+1));
      solution.timedep.pde(:,n,ntime) = ifcht(acheb_p_local);
@@ -286,15 +312,14 @@ if (opts.intScheme==1)
       % and disturbances 
      if(psize.nw>0 & ~isempty(bcw_input))
          solution.timedep.pde(:,n,ntime)=solution.timedep.pde(:,n,ntime)+bcw_input(:,n);
-     end
+     end % endif
      if(psize.nu>0 & ~isempty(bcu_input))
      solution.timedep.pde(:,n,ntime)=solution.timedep.pde(:,n,ntime)+bcu_input(:,n);
+     end % endif
+     end % ns
+     else
+     solution.timepde.pde=[];
      end
      end
-
-    
- end
-     
-     
 end
 %  

@@ -152,6 +152,7 @@ uinput.ifexact=true;
 
 %-----------------------------------------------------------
 opts.plot='yes';
+opts.ploteig='yes';
 
 % Here we define parameters related to simulation, do not modify these
 % unless necessary 
@@ -187,7 +188,7 @@ opts.tf=0.1;
 opts.intScheme=1;
 
 if (opts.intScheme==1)
-    opts.Norder = 2;
+    opts.Norder = 4;
     dt=1e-3;
     % NOTE: if tf is not divisible by dt, dt will be adjusted to a closest
     %       dt value to yield an integer number of time step

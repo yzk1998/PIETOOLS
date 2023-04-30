@@ -43,8 +43,8 @@ function [opts, uinput]=PIESIM_options_check(varinput)
 nargin=length(varinput);
 
 % required fields for options and uinputs
-fields_opts = {'N','tf','intScheme','Norder','dt','plot'};
-default_opts = {8, 1, 1, 2, 0.01,'no'};
+fields_opts = {'N','tf','intScheme','Norder','dt','plot','ploteig'};
+default_opts = {8, 1, 1, 2, 0.01,'no','no'};
 fields_uinput = {'ic','w','ifexact','exact'};
 
 kopt=0;
@@ -106,6 +106,22 @@ for i=1:length(fields_opts)
     end
 end
 opts.Nsteps=floor(opts.tf/opts.dt);
+% Check if opts.intScheme is defined correctly
+if (opts.intScheme~=1&opts.intScheme~=2)
+    i=3;
+    opts.(fields_opts{i}) = default_opts{i};
+        X = ['Warning: option ',fields_opts{i},'  is out of bounds. Setting to a default value of ', num2str(default_opts{i})];
+    disp(X);
+end
+
+
+% Check if opts.Norder is defined correctly
+if (~ismember(opts.Norder,[1,2,3,4]))
+    i=4;
+    opts.(fields_opts{i}) = default_opts{i};
+        X = ['Warning: option ',fields_opts{i},'  is out of bounds. Setting to a default value of ', num2str(default_opts{i})];
+    disp(X);
+end
 
 
 %-------------------------------------

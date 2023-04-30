@@ -20,79 +20,113 @@
 
 function PIESIM_stability_check(opts, Atotal);
          
-    Neigs = size(Atotal,1);
-    lam = eigs(Atotal, Neigs);
-    
-    lamR = zeros(length(lam),1);
-    lamI = zeros(length(lam),1);
-    
-    for i = 1:length(lam)
-        lamR(i) = real(lam(i));
-        lamI(i) = imag(lam(i));
-    end
+ %   Neigs = size(Atotal,1);
+ %   lam = eigs(Atotal, Neigs);
 
+       tol=0.2;
+
+        lam=eig(Atotal);
+        Neig=length(lam);
+        lamR = real(lam);
+        lamI = imag(lam);
+
+      if(strcmp(opts.ploteig,'yes'))
+    % Plot eigenvalues
+    
+    figure("Name","Eigenplot, PIESIM")
+    plot(lamR*opts.dt, lamI*opts.dt, 'x','MarkerSize',12,'linewidth',2)
+    xlabel("\lambda_{real}dt")
+    ylabel("\lambda_{imag}dt")
+    xline(0,'linewidth',2);
+    yline(0,'linewidth',2);
+
+    ax = gca;
+    ax.FontSize = 24;
+    H=gca;
+    H.LineWidth=3;
+    end
     
     switch opts.intScheme
         case 1
     % BDF scheme
 
-    % StabSirPar corresponds to a stability region paramerer (radius and
-    % center of a circle) for Norder=1, 2, and an estimte stability region
-    % property for Norder=3, 4
-    
-      StabCirPar=[1, 2, 3.4, 5.4];
-      StabImPar=[0, 0, 2, 5];
+    t=linspace(0,2*pi);
+    switch(opts.Norder)
 
-     Stable_circle=false; 
-     Stable_im=false; 
-     if (opts.Norder<=2) 
-         Stable_im=true;
-     end
-     if (abs(lam*opts.dt-StabCirPar(opts.Norder))>=StabCirPar(opts.Norder)) 
-         Stable_circle=true;
-     end
-     if(opts.Norder>=3)
-         if (lamI*opts.dt==0 | abs(lamR*opts.dt)>=1e-2)
-             Stable_im=true;
-         elseif (abs(lamI*opts.dt)>=StabImPar(opts.Norder)) 
-             Stable_im=true;
-         end
-     end
+    case 1
+    % First order
+    bdf1=[1 -1];
+    z=(bdf1(1)*exp(i.*t)+bdf1(2))./exp(i.*t);
 
-     Stable=[Stable_circle, Stable_im];
+    case 2
+    % Second order
+    bdf2=[3/2 -2 1/2];
+    z=(bdf2(1)*exp(2.*i.*t)+bdf2(2)*exp(i.*t)+bdf2(3))./exp(2.*i.*t);
 
-     ampl=0;
+    case 3
+    % Third order
+    bdf3=[11/6 -3 3/2 -1/3];
+    z=(bdf3(1)*exp(3.*i.*t)+bdf3(2)*exp(2.*i.*t)+bdf3(3)*exp(i.*t)+bdf3(4))./exp(3.*i.*t);
+
+    case 4
+    % Fourth order
+    bdf4=[25/12 -4 3 -4/3 1/4];
+    z=(bdf4(1)*exp(4.*i.*t)+bdf4(2)*exp(3.*i.*t)+bdf4(3)*exp(2.*i.*t)+bdf4(4)*exp(i.*t)+bdf4(5))./exp(4.*i.*t); 
+    end
+
+    an=angle(z);
+
+    for k=1:Neig
+        lambda=lam(k)*opts.dt;
+
+    diff=abs(an-angle(lambda));
+    [m,indmin]=min(diff);
      
-    if (Stable) 
-        disp('Time integration scheme is numerically stable for the given problem.');
-        disp('Any observed instabilities must be physical.');
-        if(opts.Norder>=3)
-            disp('WARNING: Stability check is imprecise for high-order schemes.')
+    if (real(lambda)*real(z(indmin))>0 & imag(lambda)*imag(z(indmin))>0)
+    am(k)=abs(z(indmin))/abs(lambda);
+    else
+    am(k)=0;
+    end
+    end
+
+    ampl=max(am);
+    closeflag=0;
+
+    if(ampl>1) 
+        Stable=0;
+        if(ampl<1+tol)
+            closeflag=1;
         end
     else
-    if (~Stable_circle) 
-        ampl=max(2*StabCirPar(opts.Norder)*cos(angle(lam))./abs(lam*opts.dt));
-    end
-    if (~Stable_im) 
-        ampl=max(max(StabImPar(opts.Norder)./abs(lamI*opts.dt)),ampl);
-    end
-        if (~Stable_circle)
-        disp('Time integration scheme is numerically unstable for the given problem.');
-        else
-        disp('Time integration scheme may be numerically unstable for the given problem.');
+        Stable=1;
+        if(ampl>1-tol)
+            closeflag=1;
         end
+    end
 
-        if (opts.Norder<=2)
-        formatSpec= 'Try increasing time step to %4.3f\n';
+    if (Stable) 
+        if (closeflag)
+        disp('Time integration scheme is on the borderline of stability.');
+        disp('Numerical simulations might be unstable.');
+        formatSpec= 'If unstable, try increasing time step to %10.8f\n';
+        fprintf(formatSpec, opts.dt*(ampl+tol));
         else
-        formatSpec= 'Try increasing time step to (an estimate of) %4.3f\n';
+        disp('Time integration scheme is numerically stable for the given problem.');
+        disp('Any observed instabilities must be physical.');
         end
-        fprintf(formatSpec, opts.dt*ampl);
+    else
+        if (closeflag)
+        disp('Time integration scheme is on the border of instability.');
+        disp('Numerical simulations may be unstable.');
+        formatSpec= 'If unstable, try increasing time step to %10.8f\n';
+        fprintf(formatSpec, opts.dt*(ampl+tol));
+        else
+        disp('Time integration scheme is numerically unstable for the given problem.');
+        formatSpec= 'Try increasing time step to %10.8f\n';
+        fprintf(formatSpec, opts.dt*(ampl+tol));
         if (opts.Norder~=1)
         disp('or decreasing an order of the scheme (opts.Norder).');
         end
-        if (opts.Norder>=3)
-        disp('WARNING: time step estimates may be inaccurate for high-order schemes.');
         end
      end
 

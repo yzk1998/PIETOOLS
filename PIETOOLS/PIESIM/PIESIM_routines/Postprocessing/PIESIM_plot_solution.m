@@ -42,21 +42,42 @@ syms sx;
 
    % Output solution of ODE states
 
+
+    if(psize.nx>0)
+if (~isempty(solution.final.ode))
 for i=1:psize.nx
 formatSpec = 'Solution of an ODE state %s at a final time %f is %8.4f\n';
 fprintf(formatSpec,num2str(i),solution.tf, solution.final.ode(i));
 end
+else
+disp('ODE solution is infinite. Unable to plot. Numerical value is not returned.')
+end
+    end
 
 % Output values for regulated outputs
+
+    if(psize.nz>0)
+if (~isempty(solution.final.regulated))
 for i=1:psize.nz
 formatSpec = 'Value of a regulated output %s at a final time %f is %8.4f\n';
 fprintf(formatSpec,num2str(i),solution.tf, solution.final.regulated(i));
 end
+else
+disp('Regulated output is infinite. Unable to plot. Numerical value is not returned.')
+end
+    end
 
 % Output values for observed outputs
+
+if(psize.ny>0)
+if (~isempty(solution.final.observed))
 for i=1:psize.ny
 formatSpec = 'Value of an observed output %s at a final time %f is %8.4f\n';
 fprintf(formatSpec,num2str(i),solution.tf, solution.final.observed(i));
+end
+else
+disp('Observed output is infinite. Unable to plot. Numerical value is not returned.')
+end
 end
 
 % Temporal evolution of solution is only available with BDF scheme
@@ -73,6 +94,7 @@ if (psize.nx>0)
     end 
 
  figure;
+ if(~isempty(odesol))
  plot(dtime,odesol,'-S','linewidth',2); 
  title('Time evolution of ODE states');
  xlabel('Time');
@@ -86,10 +108,15 @@ if (psize.nx>0)
  hl = findobj(hobj,'type','line');
  set(hl,'LineWidth',2);  
  clear labels;
+ else
+     disp('ODE solution is infinite. Unable to plot. Numerical value is not returned.')
+ end
 end
+    
 
 % Plotting observed outputs on the same plot
 if (psize.ny>0)
+    if (~isempty(solution.timedep.observed))
 y=solution.timedep.observed';
 
     for i=1:psize.ny
@@ -110,10 +137,14 @@ y=solution.timedep.observed';
  hl = findobj(hobj,'type','line');
  set(hl,'LineWidth',2);  
  clear labels;
-end
+    else
+disp('Observed output is infinite. Unable to plot. Numerical value is not returned.')
+    end
+    end
 
 % Plotting regulated outputs on the same plot
 if (psize.nz>0)
+    if (~isempty(solution.timedep.regulated))
 z=solution.timedep.regulated';
 
     for i=1:psize.nz
@@ -134,27 +165,30 @@ z=solution.timedep.regulated';
  hl = findobj(hobj,'type','line');
  set(hl,'LineWidth',2);  
  clear labels;
+else
+disp('Regulated output is infinite. Unable to plot. Numerical value is not returned.')
 end
-end
+end % psize
 
   if (~strcmp(opts.type,'DDE')& strcmp(opts.plot,'yes'))
+    if (~isempty(solution.final.pde))
   if (uinput.ifexact==true)
       a=uinput.a;
       b=uinput.b;
   exact_grid=linspace(a,b,101);
   exsol_grid=double.empty(101,0);
-  end
+  end % endif (uinput.ifexact)
   ns=sum(psize.n);
   for n=1:ns
       if (uinput.ifexact==true)
   exsol_grid_time=subs(uinput.exact(n),sx,exact_grid);
   exsol_grid=double(subs(exsol_grid_time,solution.tf));
-      end
+      end % endif (uinput.ifexact)
   figure;
   plot(grid.phys,solution.final.pde(:,n),'rd','MarkerSize',12,'linewidth',2); hold on;
   if (uinput.ifexact==true)
   plot(exact_grid,exsol_grid,'k','linewidth',3); 
-  end
+  end % endif (uinput.ifexact)
   xlabel('Spatial variable');
   ylabel('Solution at a final time');
   title('Plot of a primary state solution',num2str(n));
@@ -163,12 +197,18 @@ end
    legend('Numerical solution','Analytical solution');
   else
    legend('Numerical solution');
-  end
+  end % endif (uinput.ifexact)
   ax = gca;
   ax.FontSize = 24;
   H=gca;
   H.LineWidth=3;
-  end
-  end
+  end % for n=1:ns
+    else
+disp('PDE solution is infinite. Unable to plot. Numerical value is not returned.')
+end
+
+  end % strcmp
+
+end % Temporal evolution
 
 
