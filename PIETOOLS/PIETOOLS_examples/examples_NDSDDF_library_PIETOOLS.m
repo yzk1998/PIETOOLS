@@ -87,17 +87,17 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % % This is the version used in [2](park and Won, 1999a, Ex. 2.3), as well as [1];
-% stability=1
-% stability_dual=1
-% 
-% NDS.A0=[-2 1;0 -1];
-% NDS.Ai{1}=[0 .3;-.3 0];
-% NDS.Ai{2}=[.1 -.05;.05 .1];
-% NDS.Ei{1}=[0 -.1;-.1 0];
-% NDS.Ei{2}=[.05 0;0 .05];
-% NDS.tau(1)= 2.262; 
-% NDS.tau(2)= .5;
-% Said to be stable for any h1>0, h2<.552
+ stability=1;
+ stability_dual=1;
+ 
+ NDS.A0=[-2 1;0 -1];
+ NDS.Ai{1}=[0 .3;-.3 0];
+ NDS.Ai{2}=[.1 -.05;.05 .1];
+ NDS.Ei{1}=[0 -.1;-.1 0];
+ NDS.Ei{2}=[.05 0;0 .05];
+ NDS.tau(1)= 2.262; 
+ NDS.tau(2)= .5;
+ %Said to be stable for any h1>0, h2<.552
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -125,13 +125,13 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % % This is an example from [7], Zhao, 2018
-% stability=1
-% stability_dual=1
-% NDS.A0=[-1];
-% NDS.Ai{2}=[-2];
-% NDS.Ei{1}=[.2];
-% h=.43; %max at .5? (stability verified for h<.603)
-% NDS.tau=[h 2*h];
+ stability=1
+ stability_dual=1
+ NDS.A0=[-1];
+ NDS.Ai{2}=[-2];
+ NDS.Ei{1}=[.2];
+ h=.43; %max at .5? (stability verified for h<.603)
+ NDS.tau=[h 2*h];
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -222,10 +222,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Use these commands to convert the NDS to a DDF
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% NDS=initialize_PIETOOLS_NDS(NDS);
-% DDF=convert_PIETOOLS_NDS(NDS,'pie');
-% DDF=minimize_PIETOOLS_DDF(DDF);
-% PIE=convert_PIETOOLS_DDF(DDF,'pie');
+NDS=initialize_PIETOOLS_NDS(NDS);
+DDF=convert_PIETOOLS_NDS(NDS,'pie');
+DDF=minimize_PIETOOLS_DDF(DDF);
+PIE=convert_PIETOOLS_DDF(DDF,'pie');
 
 
 
