@@ -102,3 +102,6 @@ opts.simplify = false;
 prog_sol1_1 = sossolve(prog1_1,opts);
 
 Kval1 = getsol_lpivar(prog_sol1_1,K1);
+
+
+
